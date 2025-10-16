@@ -1,16 +1,13 @@
-# Jenkins EC2 server
-
-resource "aws_instance" "jenkins_ec2" {
-  ami                         = var.ami_id
+resource "aws_instance" "jenkins" {
+  ami                         = "ami-02d26659fd82cf299" # Update to your region AMI
   instance_type               = var.instance_type
+  subnet_id                   = aws_subnet.public.id
   key_name                    = var.key_name
-  subnet_id                   = "subnet-02ff8229745029c5f" # pick one subnet
+  security_groups             = [aws_security_group.jenkins_ec2_sg.name]
+  user_data                   = file(var.user_data_file)
   associate_public_ip_address = true
-  security_groups             = [aws_security_group.jenkins_sg.id]
-  user_data                   = file("user_data.sh")
 
   tags = {
-    Name = "jenkins-ubuntu-terraform-server"
+    Name = "Jenkins-EC2"
   }
 }
-

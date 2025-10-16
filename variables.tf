@@ -1,25 +1,40 @@
 variable "aws_region" {
-  description = "AWS Region"
+  description = "AWS region to deploy resources"
   type        = string
-  default     = "ap-south-1"
-
+  default     = "us-east-1"
 }
 
-variable "ami_id" {
-  description = "AMI ID for EC2 Instance"
+variable "vpc_cidr" {
+  description = "VPC CIDR block"
   type        = string
-  default     = "ami-02d26659fd82cf299" # Ubuntu Machine
+  default     = "10.0.0.0/16"
+}
 
+variable "public_subnet_cidr" {
+  description = "Public subnet CIDR block"
+  type        = string
+  default     = "10.0.1.0/24"
 }
 
 variable "instance_type" {
-  description = "EC2 Instance type"
+  description = "EC2 instance type"
   type        = string
-  default     = "t2.medium"
-
+  default     = "t2.micro"
 }
 
 variable "key_name" {
-  description = "Your AWS key pair name"
+  description = "SSH key pair name"
   type        = string
+}
+
+variable "sg_name" {
+  description = "Security group name"
+  type        = string
+  default     = "jenkins-ec2-sg"
+}
+
+variable "user_data_file" {
+  description = "Path to user data script"
+  type        = string
+  default     = "user_data.sh"
 }

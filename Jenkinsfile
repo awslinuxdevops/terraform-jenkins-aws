@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        TF_VAR_aws_region = 'us-east-1' // optional default region
+    }
+
     stages {
         stage('Terraform Init') {
             steps {
@@ -30,7 +34,7 @@ pipeline {
                     $class: 'AmazonWebServicesCredentialsBinding',
                     credentialsId: 'aws-creds'
                 ]]) {
-                    sh 'terraform plan -lock=false -var-file="labsquire.tfvars" -out=tfplan'
+                    sh 'terraform plan -var-file="labsquire.tfvars" -out=tfplan'
                 }
             }
         }

@@ -1,22 +1,22 @@
-#Securit_group
-
-resource "aws_security_group" "jenkins_sg" {
-  name        = "jenkins-sg"
-  description = "Allow Jenkins access"
-  vpc_id      = data.aws_vpc.existing.id
+resource "aws_security_group" "jenkins_ec2_sg" {
+  name        = var.sg_name
+  description = "Allow SSH and HTTP from anywhere"
+  vpc_id      = aws_vpc.main.id
 
   ingress {
-    from_port   = 8080
-    to_port     = 8080
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # or your office IP for security
-  }
-
-  ingress {
+    description = "SSH"
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # or restricted
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "HTTP"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
@@ -24,5 +24,9 @@ resource "aws_security_group" "jenkins_sg" {
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = var.sg_name
   }
 }

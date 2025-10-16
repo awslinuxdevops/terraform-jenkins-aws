@@ -2,91 +2,51 @@ pipeline {
     agent any
 
     environment {
-        //Automatically inject AWS creds using Jenkins credentials plugin//
-        AWS_REGION = 'ap-south-1'
+        // This will be populated by the Jenkins AWS credentials binding
+        AWS_ACCESS_KEY_ID = ''
+        AWS_SECRET_ACCESS_KEY = ''
+        AWS_SESSION_TOKEN = ''
     }
 
     stages {
-        stage('Checkout') {
-            steps {
-                echo "📥 Cloning Terraform AWS Infra Repo"
-                checkout scm
-            }
-        }
-
-        stage('Terraform Init') {
+        stage('Setup AWS Credentials') {
             steps {
                 withCredentials([[
                     $class: 'AmazonWebServicesCredentialsBinding',
                     credentialsId: 'aws-creds'
                 ]]) {
-                    sh 'terraform init -input=false'
-                }
-            }
-        }
-
-        stage('Terraform Validate') {
-            steps {
-                withCredentials([[
-                    $class: 'AmazonWebServicesCredentialsBinding',
-                    credentialsId: 'aws-creds'
-                ]]) {
-                    sh 'terraform validate'
-                }
-            }
-        }
-
-        stage('Terraform Plan') {
-            steps {
-                withCredentials([[
-                    $class: 'AmazonWebServicesCredentialsBinding',
-                    credentialsId: 'aws-creds'
-                ]]) {
-                    sh 'terraform plan -lock=false -var-file="labsquire.tfvars" -out=tfplan'
-                }
-            }
-        }
-
-        stage('Terraform Apply') {
-            steps {
-                script {
-                    def userInput = input(
-                        id: 'userInput', message: 'Proceed with Terraform Apply?', parameters: [
-                            [$class: 'BooleanParameterDefinition', defaultValue: true, description: '', name: 'confirm']
-                        ]
-                    )
-                    if (userInput == true) {
-                        withCredentials([[
-                            $class: 'AmazonWebServicesCredentialsBinding',
-                            credentialsId: 'aws-creds'
-                        ]]) {
-                            sh 'terraform apply -auto-approve tfplan'
-                        }
-                    } else {
-                        echo "🛑 Terraform apply skipped by user."
+                    // Inject credentials into environment for all subsequent stages
+                    script {
+                        env.AWS_ACCESS_KEY_ID = env.AWS_ACCESS_KEY_ID
+                        env.AWS_SECRET_ACCESS_KEY = env.AWS_SECRET_ACCESS_KEY
+                        env.AWS_SESSION_TOKEN = env.AWS_SESSION_TOKEN
                     }
                 }
             }
         }
 
-        stage('Terraform Output') {
+        stage('Terraform Init') {
             steps {
-                withCredentials([[
-                    $class: 'AmazonWebServicesCredentialsBinding',
-                    credentialsId: 'aws-creds'
-                ]]) {
-                    sh 'terraform output'
-                }
+                sh 'terraform init -input=false'
             }
         }
-    }
 
-    post {
-        success {
-            echo "✅ Terraform Infrastructure successfully created!"
+        stage('Terraform Validate') {
+            steps {
+                sh 'terraform validate'
+            }
         }
-        failure {
-            echo "❌ Terraform pipeline failed!"
+
+        stage('Terraform Plan') {
+            steps {
+                sh 'terraform plan -lock=false -var-file="labsquire.tfvars" -out=tfplan'
+            }
+        }
+
+        stage('Terraform Apply') {
+            steps {
+                sh 'terraform apply -auto-approve tfplan'
+            }
         }
     }
 }

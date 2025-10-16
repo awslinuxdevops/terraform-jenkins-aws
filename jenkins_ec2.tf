@@ -10,7 +10,7 @@ resource "aws_instance" "jenkins_ec2" {
   user_data                   = file("user_data.sh")
 
   tags = {
-    Name = "jenkins-ubuntu-server"
+    Name = "jenkins-ubuntu-terraform-server"
   }
 }
 

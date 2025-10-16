@@ -9,5 +9,6 @@ terraform {
 
 
 provider "aws" {
-  region     = var.aws_region
+  region = var.aws_region
+  # Do NOT include access_key or secret_key
 }

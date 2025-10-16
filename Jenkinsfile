@@ -42,7 +42,7 @@ pipeline {
                     $class: 'AmazonWebServicesCredentialsBinding',
                     credentialsId: 'aws-creds'
                 ]]) {
-                    sh 'terraform plan -var-file="labsquire.tfvars" -out=tfplan'
+                    sh 'terraform plan -lock=false -var-file="labsquire.tfvars" -out=tfplan'
                 }
             }
         }

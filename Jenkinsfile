@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        # Automatically inject AWS creds using Jenkins credentials plugin
-        AWS_REGION = 'ap-south-a'
+        //Automatically inject AWS creds using Jenkins credentials plugin//
+        AWS_REGION = 'ap-south-1'
     }
 
     stages {
